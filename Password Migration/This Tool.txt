@@ -1,0 +1,57 @@
+This tool is made to assist in the migration between your current password setup and the frameworks password scenario. 
+
+
+First of all, you must modify your current user table to support a column for the users salt.
+
+Here is the example query: 
+
+ALTER TABLE `users` ADD `salt` TEXT NOT NULL 
+
+
+
+This is all thats needed database side.
+
+
+Lets move on to the password migration. 
+
+
+If you open up the current file (Marked as: Slayer_Auth_PassChanger.php) 
+
+
+You will notice: 
+
+include "Class.php";
+$Database = new mysqli("localhost","DatabaseUsername","DatabasePassword","Database");
+
+
+This is straight forward. the include line is a requirement for the current Authentication class.
+The second, is your database connection. 
+
+
+A little further down, you will notice; 
+
+$Query = $Database->prepare("FIRST QUERY");
+
+	Your this query will be structured as:
+		SELECT id,password FROM users   
+
+(You just need to select the ID and Password from the table. Selecting more than two columns will result in an error)
+
+You will then notice: 
+
+	$Secondary_Query = $Database->prepare("SECOND QUERY");
+	
+	This query will be structured as: 
+	
+	UPDATE users SET password=?, salt=? WHERE id=?
+
+The only thing that will need modifying is the users field. to match the  current table that contains your users, leave the question marks in the query. 
+
+Then you will notice: 
+
+$Secondary_Query->bind_param('ssi', $Hashed['Password'],$Hashed['Salt'],$ID);
+
+This will replace the question marks in order.
+
+"ssi" = String, String, integer
+

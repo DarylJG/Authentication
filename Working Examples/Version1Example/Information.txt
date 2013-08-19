@@ -1,0 +1,1 @@
+This example was created for the API Version 1, showing the reliability and steps for account creation & Checking
